@@ -1,0 +1,46 @@
+:root {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color-scheme: light;
+  --color-sky: #e8dfca;
+  --color-sky-deep: #d5c49e;
+  --color-bg: #f6f0e4;
+  --color-sidebar: #2c4239;
+  --color-app: #f9f5ea;
+  --color-surface: #fffdf7;
+  --color-surface-soft: #f2ead9;
+  --color-border: #d8c7a7;
+  --color-border-strong: #ab916c;
+  --color-text: #2f3027;
+  --color-muted: #697064;
+  --color-text-soft: #8b8b78;
+  --color-accent: #b96d45;
+  --color-accent-soft: #f4dac5;
+  --color-success: #5f8b61;
+  --color-success-soft: #dcebd7;
+  --color-warning: #c9903d;
+  --color-warning-soft: #f9e8bd;
+  --color-danger: #b95e58;
+  --color-danger-soft: #f5ded8;
+  --color-world-green: #a9c494;
+  --color-world-green-deep: #57775a;
+  --color-world-blue: #8eafaa;
+  --color-shadow: rgb(74 57 36 / 16%);
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --radius-panel: 0.75rem;
+  --duration-feedback: 140ms;
+}
+:root {
+  --color-accent-ink: #885037;
+  --color-success-ink: #3e683f;
+  --color-success-border: #b4cfae;
+  --color-danger-ink: #8f3e3b;
+  --color-review-ink: #715c86;
+  --color-review-soft: #eee6f3;
+  --color-glass: rgb(255 253 247 / 82%);
+  --color-shadow-soft: rgb(74 57 36 / 8%);
+  --color-world-sky: #e8ead8;
+  --color-overlay: rgb(47 48 39 / 48%);
+}

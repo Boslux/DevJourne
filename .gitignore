@@ -1,0 +1,38 @@
+node_modules/
+dist/
+coverage/
+src-tauri/target/
+src-tauri/gen/
+.tools/
+.tauri/
+*.log
+.env
+.env.*
+!.env.example
+
+# Yerel uygulama verisi ve geçici SQLite yan dosyaları
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+
+# İmzalama anahtarları ve sertifikalar (kaynak depoya konmaz)
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+*.crt
+
+# İşletim sistemi ve editör yerel dosyaları
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Dahili talimatlar, planlar ve geliştirme notları
+*.md
+!README.md
+docs/
+.agents/

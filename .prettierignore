@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+src-tauri/target
+src-tauri/gen
+.tools
+package-lock.json
+Cargo.lock
+
+# Existing agent instructions are maintained independently of application formatting.
+.agents/
+AGENTS.md

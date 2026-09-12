@@ -1,0 +1,21 @@
+[package]
+name = "devquest"
+version = "0.1.0"
+description = "Local-first game development workflow tracker"
+edition = "2021"
+
+[lib]
+name = "devquest_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "migrate", "uuid", "chrono"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+tokio = { version = "1", features = ["fs"] }
