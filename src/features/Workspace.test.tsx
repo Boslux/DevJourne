@@ -86,6 +86,81 @@ beforeEach(() => {
   api.deleteTask.mockResolvedValue(undefined);
 });
 describe('Project workflow', () => {
+  it('shows due dates as scannable local dates and labels overdue work', async () => {
+    vi.setSystemTime(new Date('2026-09-15T12:00:00Z'));
+    api.taskPage.mockResolvedValueOnce({
+      tasks: [{ ...task, due_at: '2026-09-14T10:00:00Z' }],
+      total: 1,
+      project_total: 1,
+      completed: 0,
+    });
+    renderWorkspace();
+
+    const dueDate = await screen.findByText(/Süresi geçti/);
+    expect(dueDate).toHaveTextContent('14 Eyl 2026');
+    expect(dueDate.closest('time')).toHaveAttribute(
+      'datetime',
+      '2026-09-14T10:00:00Z',
+    );
+    vi.useRealTimers();
+  });
+
+  it('focuses task search with the slash shortcut', async () => {
+    const user = userEvent.setup();
+    renderWorkspace();
+    const search = await screen.findByRole('searchbox', {
+      name: 'Görevlerde ara',
+    });
+
+    await user.keyboard('/');
+    expect(search).toHaveFocus();
+    await user.keyboard('abc');
+    expect(search).toHaveValue('abc');
+  });
+
+  it('opens the new-task editor with n outside editable controls', async () => {
+    const user = userEvent.setup();
+    renderWorkspace();
+
+    await screen.findByRole('button', { name: 'İlk odayı oluştur' });
+    await user.keyboard('n');
+
+    expect(
+      screen.getByRole('dialog', { name: 'Yeni görev' }),
+    ).toBeInTheDocument();
+  });
+
+  it('does not capture n while typing in task search', async () => {
+    const user = userEvent.setup();
+    renderWorkspace();
+    const search = await screen.findByRole('searchbox', {
+      name: 'Görevlerde ara',
+    });
+
+    await user.click(search);
+    await user.keyboard('n');
+
+    expect(search).toHaveValue('n');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('offers a focused first-task action when the project has no tasks', async () => {
+    api.taskPage.mockResolvedValueOnce({
+      tasks: [],
+      total: 0,
+      project_total: 0,
+      completed: 0,
+    });
+    renderWorkspace();
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole('button', { name: '＋ İlk görevi ekle' }),
+    );
+    expect(
+      screen.getByRole('dialog', { name: 'Yeni görev' }),
+    ).toBeInTheDocument();
+  });
+
   it('creates an assigned task with priority, due date, tags and milestone in one request', async () => {
     const user = userEvent.setup();
     renderWorkspace();
@@ -204,6 +279,55 @@ describe('Project workflow', () => {
         0,
       ),
     );
+  });
+  it('clears all task path filters with one accessible action', async () => {
+    const user = userEvent.setup();
+    renderWorkspace();
+    const search = await screen.findByRole('searchbox', {
+      name: 'Görevlerde ara',
+    });
+    await user.type(search, 'harita');
+    await user.selectOptions(
+      screen.getByLabelText('Duruma göre filtrele'),
+      'blocked',
+    );
+    await user.click(screen.getByLabelText('Görev arşivi'));
+    await user.click(
+      await screen.findByRole('button', { name: 'Filtreleri temizle' }),
+    );
+
+    expect(search).toHaveValue('');
+    expect(screen.getByLabelText('Duruma göre filtrele')).toHaveValue('');
+    expect(screen.getByLabelText('Üyeye göre filtrele')).toHaveValue('');
+    expect(screen.getByLabelText('Görev arşivi')).not.toBeChecked();
+    expect(
+      screen.queryByRole('button', { name: 'Filtreleri temizle' }),
+    ).not.toBeInTheDocument();
+  });
+  it('groups task search and filters in a named search region', async () => {
+    renderWorkspace();
+
+    expect(
+      await screen.findByRole('search', { name: 'Görev filtreleri' }),
+    ).toBeInTheDocument();
+  });
+  it('explains the visible task count when filters are active', async () => {
+    const user = userEvent.setup();
+    api.taskPage.mockResolvedValue({
+      tasks: [task],
+      total: 1,
+      project_total: 4,
+      completed: 0,
+    });
+    renderWorkspace();
+    await screen.findByRole('button', { name: task.title });
+    await user.selectOptions(
+      screen.getByLabelText('Duruma göre filtrele'),
+      'blocked',
+    );
+    expect(
+      await screen.findByText('1 görev gösteriliyor / 4 toplam'),
+    ).toBeInTheDocument();
   });
   it('requires named confirmation for task deletion and offers reorder actions', async () => {
     const user = userEvent.setup();

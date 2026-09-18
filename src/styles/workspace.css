@@ -243,9 +243,33 @@ progress::-webkit-progress-value {
   font-size: 1.4rem;
   color: var(--color-muted);
 }
+.search-field > kbd {
+  position: absolute;
+  right: 12px;
+  padding: 2px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-surface-soft);
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
 .search-field input {
   width: 100%;
   padding-left: 38px;
+  padding-right: 42px;
+}
+.clear-filters-button {
+  white-space: nowrap;
+}
+.button-shortcut {
+  margin-left: 6px;
+  padding: 2px 5px;
+  border: 1px solid rgb(255 250 240 / 55%);
+  border-radius: 4px;
+  color: inherit;
+  font-size: 0.7rem;
+  line-height: 1;
 }
 .route-caption {
   display: flex;
@@ -408,6 +432,10 @@ progress::-webkit-progress-value {
   align-items: center;
   gap: 7px;
 }
+.due-date-overdue {
+  color: var(--color-danger-ink);
+  font-weight: 700;
+}
 .pixel-avatar {
   --avatar-color: #729d78;
   --avatar-dark: #3f6654;
@@ -521,6 +549,9 @@ progress::-webkit-progress-value {
   color: var(--color-text);
   margin-bottom: 10px;
 }
+.route-empty-action {
+  margin-top: 18px;
+}
 .native-dialog {
   margin: auto;
   color: var(--color-text);
@@ -622,9 +653,17 @@ progress::-webkit-progress-value {
   color: var(--color-muted);
 }
 .backup-block {
-  padding-top: 24px;
-  margin-top: 24px;
-  border-top: 1px solid var(--color-border);
+  margin-top: 18px;
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.backup-block h3 {
+  margin: 0;
+}
+.backup-block > p {
+  margin-bottom: 0;
 }
 .backup-block button {
   margin-top: 18px;
@@ -633,10 +672,33 @@ progress::-webkit-progress-value {
   display: grid;
   gap: 8px;
   margin-top: 18px;
-  color: var(--color-muted);
+  color: var(--color-text);
+  font-size: 0.9rem;
 }
 .file-input input {
   max-width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+.file-input input::file-selector-button {
+  min-height: 32px;
+  margin-right: 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+.file-input input:focus-visible {
+  outline: 3px solid var(--color-accent-ink);
+  outline-offset: 2px;
 }
 .success-message {
   padding: 14px;

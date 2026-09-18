@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import {
   useInfiniteQuery,
   useMutation,
@@ -44,6 +44,17 @@ const activityLabels: Record<string, string> = {
   milestone_reopened: 'Milestone yeniden açıldı',
 };
 
+function formatDueDate(value: string) {
+  const date = new Date(value);
+  const label = date.toLocaleDateString('tr-TR', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  const overdue = date.getTime() < Date.now();
+  return { label, overdue };
+}
+
 export function Workspace({
   project,
   onBack,
@@ -66,6 +77,30 @@ export function Workspace({
   const [deleting, setDeleting] = useState<WorkTask | null>(null);
   const [milestoneName, setMilestoneName] = useState('');
   const [celebrating, setCelebrating] = useState<string | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const focusSearch = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (
+        event.key.toLowerCase() === 'n' &&
+        !target?.matches('input, textarea, select, [contenteditable="true"]')
+      ) {
+        event.preventDefault();
+        setEditor({ task: null });
+        return;
+      }
+      if (
+        event.key !== '/' ||
+        target?.matches('input, textarea, select, [contenteditable="true"]')
+      ) {
+        return;
+      }
+      event.preventDefault();
+      searchInputRef.current?.focus();
+    };
+    window.addEventListener('keydown', focusSearch);
+    return () => window.removeEventListener('keydown', focusSearch);
+  }, []);
   const filter = {
     project_id: project.id,
     search: deferredSearch,
@@ -169,6 +204,7 @@ export function Workspace({
   }
   function card(task: WorkTask, index: number) {
     const assignee = membersById.get(task.assigned_member_id ?? '');
+    const dueDate = task.due_at ? formatDueDate(task.due_at) : null;
     return (
       <article
         className={`quest-card quest-${task.status} ${celebrating === task.id ? 'quest-celebrate' : ''}`}
@@ -202,7 +238,17 @@ export function Workspace({
               ? `${assignee.name}${!assignee.is_active ? ' · Devre dışı' : ''}`
               : 'Atanmamış'}
           </span>
-          {task.due_at && <time dateTime={task.due_at}>◷ {task.due_at}</time>}
+          {task.due_at && dueDate && (
+            <time
+              className={
+                dueDate.overdue ? 'due-date due-date-overdue' : 'due-date'
+              }
+              dateTime={task.due_at}
+            >
+              ◷ {dueDate.overdue ? 'Süresi geçti · ' : ''}
+              {dueDate.label}
+            </time>
+          )}
           {task.milestone_id && (
             <span>
               ⚑ {milestonesById.get(task.milestone_id)?.name ?? 'Milestone'}
@@ -347,10 +393,15 @@ export function Workspace({
       )}
       {view === 'tasks' && (
         <>
-          <div className="task-toolbar">
+          <div
+            className="task-toolbar"
+            role="search"
+            aria-label="Görev filtreleri"
+          >
             <label className="search-field">
               <span aria-hidden="true">⌕</span>
               <input
+                ref={searchInputRef}
                 type="search"
                 aria-label="Görevlerde ara"
                 placeholder="Görev veya etiket ara…"
@@ -358,6 +409,7 @@ export function Workspace({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
+              <kbd aria-hidden="true">/</kbd>
             </label>
             <select
               aria-label="Duruma göre filtrele"
@@ -383,8 +435,23 @@ export function Workspace({
                 </option>
               ))}
             </select>
+            {(search || status || member || archived) && (
+              <button
+                className="secondary-button clear-filters-button"
+                type="button"
+                onClick={() => {
+                  setSearch('');
+                  setStatus('');
+                  setMember('');
+                  setArchived(false);
+                }}
+              >
+                Filtreleri temizle
+              </button>
+            )}
             <button
               className="primary-button"
+              aria-keyshortcuts="n"
               disabled={
                 membersQuery.isPending ||
                 milestonesQuery.isPending ||
@@ -393,12 +460,17 @@ export function Workspace({
               }
               onClick={() => setEditor({ task: null })}
             >
-              ＋ Yeni görev
+              ＋ Yeni görev <kbd className="button-shortcut">N</kbd>
             </button>
           </div>
           <div className="route-caption">
             <span>
-              MACERA ROTASI <strong>{stats?.total ?? 0} görev</strong>
+              MACERA ROTASI{' '}
+              <strong aria-live="polite">
+                {stats?.total ?? 0} görev gösteriliyor
+                {(search || status || member || archived) &&
+                  ` / ${stats?.project_total ?? 0} toplam`}
+              </strong>
             </span>
             <label>
               <input
@@ -434,8 +506,18 @@ export function Workspace({
                   <p>
                     {search || status || member
                       ? 'Aramanı veya filtrelerini değiştir.'
-                      : 'İlk görevini ekle, rotan burada şekillensin.'}
+                      : archived
+                        ? 'Arşiv görevlerini görmek için arşiv filtresini kapat.'
+                        : 'İlk görevini ekle, rotan burada şekillensin.'}
                   </p>
+                  {!search && !status && !member && !archived && (
+                    <button
+                      className="primary-button route-empty-action"
+                      onClick={() => setEditor({ task: null })}
+                    >
+                      ＋ İlk görevi ekle
+                    </button>
+                  )}
                 </div>
               ) : tasks.length <= 30 ? (
                 <div className="quest-list">
